@@ -27,27 +27,36 @@ class Encoder:
 
     def encode(self, open_message) -> Message:
         ciphertext = np.random.uniform(low=-1.0, high=1.0, size=self.n)
-        i = np.random.randint(self.n)
-        ciphertext[i] = 0
-        print(ciphertext)
-        print(i)
         print(self.key)
-        print(np.dot(ciphertext, self.key))
-        ciphertext[i] = 2 + open_message + self.noise - np.dot(ciphertext, self.key)
+        non_zero_key_ind = np.nonzero(self.key) 
+        i = np.random.choice(non_zero_key_ind[0])
+        print(i)        
+        
+        ciphertext[i] = 0
+        ciphertext[i] = open_message + self.noise - np.dot(ciphertext, self.key)
+        ciphertext[i] = ciphertext[i] % 2
+        if ciphertext[i] >= 1:
+            ciphertext[i] = ciphertext[i] - 2
+        
+        
         print(ciphertext)
+        print(np.dot(ciphertext, self.key))
         return Message(ciphertext)
 
     def decode(self, message):
-        print(np.dot(message.value, self.key))
-        print(np.dot(message.value, self.key) % 2)
+        # print(np.dot(message.value, self.key))
+
+        # print(np.dot(message.value, self.key) % 2)
         return np.rint(np.dot(message.value, self.key) % 2)
 
 
 if __name__ == '__main__':
     encoder = Encoder(5, 0.1)
-    m_1 = 1
+    m_1 = 0
     m_2 = 0
     message_1 = encoder.encode(m_1)
+    print("decode-open message")
+
     print(encoder.decode(message_1))
     #message_2 = encoder.encode(m_2)
 
