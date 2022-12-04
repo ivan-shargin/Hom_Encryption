@@ -59,16 +59,32 @@ class Encoder:
 
     def decode(self, message):
         return int(np.rint(np.dot(message.value, self.key) % 2))
+    
+    def gen_mult_key(self, debug=False):
+        key_tensor = [[self.key[i]*self.key[j] for j in range(self.n)] for i in range(self.n)]
+        key_tensor_bit = [key_tensor / np.power(2, k) for k in range(self.n)]
+        key_tensor_bit = np.array(key_tensor_bit)
+        if debug:
+            print("Key: {}".format(self.key))
+            print("Key tensor s_ij / 2^k:")
+            print(key_tensor_bit)
+        vectorized_encode = np.vectorize(self.encode)
+        mult_key = vectorized_encode(key_tensor_bit)
+        if debug:
+            print("Shape of x_ijk(mult_key): {}".format(mult_key.shape))
+        return mult_key
+        
 
 
 if __name__ == '__main__':
-    encoder = Encoder(10, 0.1)
+    encoder = Encoder(2, 0.001)
     m_1 = 0
     m_2 = 1
-    cipher_1 = encoder.encode(m_1, debug=True)
+    cipher_1 = encoder.encode(m_1)
     cipher_2 = encoder.encode(m_2)
     print("open message_1 is {}, was decoded as {}".format(m_1, encoder.decode(cipher_1)))
     print("open message_2 is {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
+    encoder.gen_mult_key(debug=True)
 
     
     
