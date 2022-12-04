@@ -38,8 +38,7 @@ class Encoder:
         
         if debug:
             print("Key: {}".format(self.key))
-        
-        print("Noise: {}".format(self.noise))
+            print("Noise: {}".format(self.noise))           
         
         i = np.random.choice(self.non_zero_key_ind)
         
