@@ -8,6 +8,9 @@ class Message:
 
     def __init__(self, ciphertext):
         self.value = ciphertext
+        
+    def get_value(cipher_message):
+        return cipher_message.value
 
     def hom_add(self, mes_2):
         assert isinstance(mes_2, Message)
@@ -16,6 +19,8 @@ class Message:
     def hom_mult(self, mes_2, encrypts_x):
         assert isinstance(mes_2, Message)
         pass
+    
+    
 
 
 class Encoder:
@@ -60,18 +65,21 @@ class Encoder:
     def decode(self, message):
         return int(np.rint(np.dot(message.value, self.key) % 2))
     
-    def gen_mult_key(self, debug=False):
-        key_tensor = [[self.key[i]*self.key[j] for j in range(self.n)] for i in range(self.n)]
-        key_tensor_bit = [key_tensor / np.power(2, k) for k in range(self.n)]
-        key_tensor_bit = np.array(key_tensor_bit)
+    def gen_mult_key(self, debug=False, print_mult_key=False):
+        mult_key = [[[self.encode(self.key[i]*self.key[j] / np.power(2, k)).value
+                        for k in range(self.n)] 
+                        for j in range(self.n)]
+                        for i in range(self.n)]
+      
+        mult_key= np.array(mult_key)
         if debug:
-            print("Key: {}".format(self.key))
-            print("Key tensor s_ij / 2^k:")
-            print(key_tensor_bit)
-        vectorized_encode = np.vectorize(self.encode)
-        mult_key = vectorized_encode(key_tensor_bit)
+            print("\nKey: {}".format(self.key))
+     
         if debug:
-            print("Shape of x_ijk(mult_key): {}".format(mult_key.shape))
+            print("\nShape of x_ijk(mult_key): {}".format(mult_key.shape))
+        if print_mult_key:
+            print("\nx_ijk(mult_key):")
+            print(mult_key)
         return mult_key
         
 
@@ -84,7 +92,7 @@ if __name__ == '__main__':
     cipher_2 = encoder.encode(m_2)
     print("open message_1 is {}, was decoded as {}".format(m_1, encoder.decode(cipher_1)))
     print("open message_2 is {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
-    encoder.gen_mult_key(debug=True)
+    encoder.gen_mult_key(debug=True, print_mult_key=True)
 
     
     
