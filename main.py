@@ -22,22 +22,21 @@ class Message:
         n = self.value.size
         c_ijk = self.make_c_tensor(self.value, mes_2.value, n)
         mult_cipher = (c_ijk * encrypts_x).reshape(-1, encrypts_x.shape[-1]).sum(axis=0)
+        print("mult_cipher")
+        print(mult_cipher)
         
         return Message(mult_cipher)
     
     def to_binary(self, decimal, n):
         sign = np.sign(decimal)
-        decimal = np.abs(decimal)
+        if sign == -1:
+            decimal = 2 + decimal
+        
         int_decimal = np.round(decimal * np.power(2, n-2), 0) #may be np.round wont work correctly
         int_decimal = int(int_decimal)
-        binary = np.binary_repr(int_decimal, width=n-1)
+        binary = np.binary_repr(int_decimal, width=n)
         binary = list(binary)
-        binary = np.array([int(symbol) for symbol in binary])
-        if sign == 1 or sign == 0:
-            first_bit = 0
-        else:
-            first_bit = 1
-        binary = np.insert(binary, 0, first_bit)
+        binary = np.array([int(symbol) for symbol in binary])       
         
         return binary
     
@@ -96,7 +95,7 @@ class Encoder:
     
     def gen_mult_key(self, debug=False, print_mult_key=False):
         mult_key = [[[self.encode(self.key[i]*self.key[j] / np.power(2, k)).value
-                        for k in range(self.n)] 
+                        for k in range(1, self.n + 1)] 
                         for j in range(self.n)]
                         for i in range(self.n)]
       
@@ -114,18 +113,22 @@ class Encoder:
 
 
 if __name__ == '__main__':
-    encoder = Encoder(5, 0.001)
+    n = 2
+    encoder = Encoder(n, 0)
+    print(encoder.key)
     m_1 = 1
-    m_2 = 0
+    m_2 = 1
     cipher_1 = encoder.encode(m_1)
     cipher_2 = encoder.encode(m_2)
-    print("\nopen message_1 = {}, was decoded as {}".format(m_1, encoder.decode(cipher_1)))
-    print("\nopen message_2 = {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
-    encoder.gen_mult_key()
+    # print("\nopen message_1 = {}, was decoded as {}".format(m_1, encoder.decode(cipher_1)))
+    # print("\nopen message_2 = {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
+    # encoder.gen_mult_key(print_mult_key=True)
     
-    # print(cipher_1.to_binary(-0.5, 5))
-    # print(cipher_1.make_c_tensor(cipher_1.value, cipher_2.value, 5))
-    mult_cipher = cipher_1.hom_mult(cipher_2, encoder.gen_mult_key())
+    print(cipher_1.to_binary(0.75, n))
+    print(cipher_1.value)
+    print(cipher_2.value)
+    print(cipher_1.make_c_tensor(cipher_1.value, cipher_2.value, 2))
+    mult_cipher = cipher_1.hom_mult(cipher_2, encoder.gen_mult_key(print_mult_key=True))
     
     print("\nopen message_2 * open_message_1 = {}, was decoded as {}".format(m_2*m_1, encoder.decode(mult_cipher)))
     
