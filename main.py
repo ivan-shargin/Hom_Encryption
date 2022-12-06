@@ -14,7 +14,7 @@ class Message:
 
     def hom_add(self, mes_2):
         assert isinstance(mes_2, Message)
-        return self.value + mes_2.value
+        return Message(self.value + mes_2.value)
 
     def hom_mult(self, mes_2, encrypts_x):
         assert isinstance(mes_2, Message)
@@ -27,9 +27,6 @@ class Message:
             for j in range(n):
                 for k in range(n):
                     mult_cipher = mult_cipher + c_ijk[i, j, k] * encrypts_x[i, j, k, :]
-        
-        print("mult_cipher")
-        print(mult_cipher)
         
         return Message(mult_cipher)
     
@@ -123,24 +120,20 @@ class Encoder:
 
 
 if __name__ == '__main__':
-    n = 10
-    encoder = Encoder(n, 0)
-    # print(encoder.key)
-    m_1 = 1
+    n = 20
+    encoder = Encoder(n, 1e-10)
+    m_1 = 0
     m_2 = 1
     cipher_1 = encoder.encode(m_1)
     cipher_2 = encoder.encode(m_2)
-    # print("\nopen message_1 = {}, was decoded as {}".format(m_1, encoder.decode(cipher_1)))
-    # print("\nopen message_2 = {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
-    # encoder.gen_mult_key(print_mult_key=True)
+    print("\nopen msg_1 = {}, was decoded as {}".format(m_1, encoder.decode(cipher_1)))
+    print("\nopen msg_2 = {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
     
-    print(cipher_1.to_binary(1.99, n))
-    # print(cipher_1.value)
-    # print(cipher_2.value)
-    # print(cipher_1.make_c_tensor(cipher_1.value, cipher_2.value, 2))
-    mult_cipher = cipher_1.hom_mult(cipher_2, encoder.gen_mult_key())
+    add_cipher = cipher_1.hom_add(cipher_2)    
+    print("\nopen msg_2 + open_msg_1 = {}, was decoded as {}".format(m_2+m_1, encoder.decode(add_cipher)))
     
-    print("\nopen message_2 * open_message_1 = {}, was decoded as {}".format(m_2*m_1, encoder.decode(mult_cipher)))
+    mult_cipher = cipher_1.hom_mult(cipher_2, encoder.gen_mult_key())    
+    print("\nopen msg_2 * open_msg_1 = {}, was decoded as {}".format(m_2*m_1, encoder.decode(mult_cipher)))
     
 
     
