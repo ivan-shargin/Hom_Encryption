@@ -21,7 +21,13 @@ class Message:
         
         n = self.value.size
         c_ijk = self.make_c_tensor(self.value, mes_2.value, n)
-        mult_cipher = (c_ijk * encrypts_x).reshape(-1, encrypts_x.shape[-1]).sum(axis=0)
+    
+        mult_cipher = np.zeros(n)
+        for i in range(n):
+            for j in range(n):
+                for k in range(n):
+                    mult_cipher = mult_cipher + c_ijk[i, j, k] * encrypts_x[i, j, k, :]
+        
         print("mult_cipher")
         print(mult_cipher)
         
@@ -113,7 +119,7 @@ class Encoder:
 
 
 if __name__ == '__main__':
-    n = 2
+    n = 10
     encoder = Encoder(n, 0)
     print(encoder.key)
     m_1 = 1
@@ -124,7 +130,7 @@ if __name__ == '__main__':
     # print("\nopen message_2 = {}, was decoded as {}".format(m_2, encoder.decode(cipher_2)))
     # encoder.gen_mult_key(print_mult_key=True)
     
-    print(cipher_1.to_binary(0.75, n))
+    # print(cipher_1.to_binary(0.75, n))
     print(cipher_1.value)
     print(cipher_2.value)
     print(cipher_1.make_c_tensor(cipher_1.value, cipher_2.value, 2))
